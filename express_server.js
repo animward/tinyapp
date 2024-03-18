@@ -69,3 +69,14 @@ function generateRandomString(length = 6) {
     }
     return randomString;
 }
+
+app.post("/urls/:id/delete", (req, res) => {
+    const urlID = req.params.id;
+    if (urlDatabase[urlID]) {
+        delete urlDatabase[urlID];
+        res.redirect("/urls");
+    } else {
+        res.status(404).send("URL not found");
+    }
+  
+});
