@@ -3,6 +3,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+const { generateRandomString } = require('./randomString');
+
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
@@ -60,15 +62,6 @@ app.get("/u/:id", (req, res) => {
         res.status(404).send("URL not found");
     }
 });
-
-function generateRandomString(length = 6) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let randomString = '';
-    for (let i = 0; i < length; i++) {
-        randomString += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return randomString;
-}
 
 app.post("/urls/:id/delete", (req, res) => {
     const urlID = req.params.id;
