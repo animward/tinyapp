@@ -73,3 +73,11 @@ app.post("/urls/:id/delete", (req, res) => {
     }
   
 });
+
+app.post("/urls/:id", (req, res) => {
+    const urlID = req.params.id;
+    const newURL = req.body.newLongURL;
+    urlDatabase[urlID] = newURL;
+    console.log("Updated URL Database:", urlDatabase);
+    res.redirect("/urls");
+});
