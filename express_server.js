@@ -8,6 +8,7 @@ app.use(cookieParser());
 const { generateRandomString } = require('./randomString');
 
 const {addUser, findUserByEmail } = require('./users');
+const e = require("express");
 
 app.set("view engine", "ejs");
 
@@ -16,8 +17,16 @@ app.use(express.urlencoded({ extended: true }));
 //login
 app.post("/login", (req, res) => {
     const email = req.body.email;
+    const password = req.body.password;
+
+    const user = findUserByEmail(email);
+    if (!user || user.password !== password) {
+        res.status(403).send("Invalid username or password");
+        return;
+    } else {
     res.cookie('username', email);
     res.redirect("/urls");
+    }
 });
 
 // logout
