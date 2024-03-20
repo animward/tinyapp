@@ -15,8 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 
 //login
 app.post("/login", (req, res) => {
-    const username = req.body.username;
-    res.cookie('username', username);
+    const email = req.body.email;
+    res.cookie('username', email);
     res.redirect("/urls");
 });
 
