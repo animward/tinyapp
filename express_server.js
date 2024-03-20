@@ -7,6 +7,8 @@ app.use(cookieParser());
 
 const { generateRandomString } = require('./randomString');
 
+const {addUser, findUserByEmail } = require('./users');
+
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
@@ -34,12 +36,16 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-    const username = req.body.username;
+    const email = req.body.email;
     const password = req.body.password;
-    if (username === "" || password === "") {
+    if (!email || !password) {
         res.status(400).send("Username or password cannot be empty");
+    } else if (findUserByEmail(email)) {
+        res.status(400).send("User already exists");
     } else {
-        res.cookie('username', username);
+        const userID = generateRandomString();
+        addUser(userID, email, password);
+        res.cookie('userid', userID);
         res.redirect("/urls");
     }
 });
@@ -62,7 +68,8 @@ app.listen(PORT, () => {
 
 // render new URL form
 app.get("/urls/new", (req, res) => {
-    res.render("urls_new");
+    const templateVars = { username: req.cookies["username"] };
+    res.render("urls_new", templateVars);
 });
 
 // display URL list
@@ -78,7 +85,11 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
     const id = req.params.id;
     const longURL = urlDatabase[id];
-    const templateVars = { id: id, longURL: longURL};
+    const templateVars = {
+        id: id,
+        longURL: longURL,
+        username: req.cookies["username"]
+        };
     res.render("urls_show", templateVars);
 });
 
@@ -97,7 +108,7 @@ app.post("/urls", (req, res) => {
     const shortURL = generateRandomString();
     const longURL = req.body.longURL;
     urlDatabase[shortURL] = longURL;
-    res.redirect(`/urls/${shortURL}`);
+    res.redirect(`/urls`);
 });
 
 // redirect to long URL
