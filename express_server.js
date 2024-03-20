@@ -22,13 +22,26 @@ app.get("/example", (req, res) => {
     res.render("example", { username: req.cookies["username"] });
 });
 
+// logout
 app.post("/logout", (req, res) => {
     res.clearCookie('username');
     res.redirect("/urls");
 });
 
+// register
 app.get("/register", (req, res) => {
     res.render("register");
+});
+
+app.post("/register", (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+    if (username === "" || password === "") {
+        res.status(400).send("Username or password cannot be empty");
+    } else {
+        res.cookie('username', username);
+        res.redirect("/urls");
+    }
 });
 
 // url database
