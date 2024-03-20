@@ -24,7 +24,7 @@ app.post("/login", (req, res) => {
         res.status(403).send("Invalid username or password");
         return;
     } else {
-    res.cookie('username', email);
+    res.cookie('email', email);
     res.redirect("/urls");
     }
 });
