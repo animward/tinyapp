@@ -20,10 +20,6 @@ app.post("/login", (req, res) => {
     res.redirect("/urls");
 });
 
-app.get("/example", (req, res) => {
-    res.render("example", { username: req.cookies["username"] });
-});
-
 // logout
 app.post("/logout", (req, res) => {
     res.clearCookie('username');
