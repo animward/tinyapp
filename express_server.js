@@ -50,6 +50,10 @@ app.post("/register", (req, res) => {
     }
 });
 
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+
 // url database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
