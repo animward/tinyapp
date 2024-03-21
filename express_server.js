@@ -4,6 +4,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
+const bcrypt = require('bcryptjs');
 
 const { generateRandomString } = require('./randomString');
 
@@ -20,7 +21,7 @@ app.post("/login", (req, res) => {
     const password = req.body.password;
 
     const user = findUserByEmail(email);
-    if (!user || user.password !== password) {
+    if (!user || !bcrypt.compareSync(password, user.password)) {
         res.status(403).send("Invalid username or password");
         return;
     } else {
@@ -97,8 +98,8 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls", (req, res) => {
     const userID = req.cookies["userid"];
     if (!userID) {
-        res.status(401).send("Login or register");
-        return;
+     //   res.status(401).send("Login or register");
+        return res.redirect("/login");
     }
     const userURLs = urlsForUser(userID);
     const templateVars = { 
@@ -106,6 +107,7 @@ app.get("/urls", (req, res) => {
         urls: userURLs 
     };
     res.render("urls_index", templateVars);
+    
   });
 
 // display URL details
