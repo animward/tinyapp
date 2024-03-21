@@ -27,7 +27,7 @@ describe("TinyApp Authorization Tests", () => {
       });
   });
 
-  it('should return 404 for non-existent URL', () => {
+  it("should return 404 for non-existent URL", () => {
     return chai
       .request(serverUrl)
       .get("/urls/NOTEXISTS")
