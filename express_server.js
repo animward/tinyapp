@@ -37,8 +37,8 @@ app.post("/login", (req, res) => {
         return;
     }
 
+    req.session.email = user.email;
     req.session.userid = user.id;
-    req.session.email = email;
     res.redirect("/urls");
 
 });
@@ -69,9 +69,6 @@ app.post("/register", (req, res) => {
         res.status(400).send("User already exists");
         return;
     }
-
-    console.log("email: ", email);
-    console.log("password: ", password);
 
         const userID = generateRandomString();
         addUser(userID, email, hashedPassword);
@@ -137,7 +134,7 @@ app.get("/urls", (req, res) => {
 // display URL details
 app.get("/urls/:id", (req, res) => {
     const id = req.params.id;
-    const longURL = urlDatabase[id];
+    const longURL = urlDatabase[id].longURL;
     const templateVars = {
         id: id,
         longURL: longURL,
@@ -173,7 +170,7 @@ app.post("/urls", (req, res) => {
 // redirect to long URL
 app.get("/u/:id", (req, res) => {
     const shortURL = req.params.id;
-    const longURL = urlDatabase[shortURL];
+    const longURL = urlDatabase[shortURL].longURL;
     if (longURL) {
         res.redirect(longURL);
     } else {
