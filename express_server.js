@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-var cookieSession = require('cookie-session');
+const cookieSession = require('cookie-session');
 app.use(cookieSession({
     name: 'session',
     keys: ['tinyAppCookieKey'],
