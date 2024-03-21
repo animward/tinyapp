@@ -2,8 +2,13 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+
+var cookieSession = require('cookie-session');
+app.use(cookieSession({
+    name: 'session',
+    keys: ['tinyAppCookieKey'],
+}));
+
 const bcrypt = require('bcryptjs');
 
 const { generateRandomString } = require('./randomString');
@@ -25,35 +30,37 @@ app.post("/login", (req, res) => {
         res.status(403).send("Invalid username or password");
         return;
     }
+
+
     if (!bcrypt.compareSync(password, user.password)) {
         res.status(403).send("Invalid username or password");
         return;
     }
 
-    res.cookie('userid', user.id);
-    res.cookie('email', email);
+    req.session.userid = user.id;
+    req.session.email = email;
     res.redirect("/urls");
 
 });
 
 // logout
 app.post("/logout", (req, res) => {
-    res.clearCookie('email');
-    res.clearCookie('userid');
-    res.redirect("/urls");
+    req.session = null;
+    res.redirect("/login");
 });
 
 // register
 app.get("/register", (req, res) => {
-    res.render("register", { email: req.cookies["email"] });
+    res.render("register", { email: req.session.email });
 });
 
+//post register
 app.post("/register", (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     if (!email || !password) {
         res.status(400).send("Username or password cannot be empty");
-        return
+        return;
     }
     
     const hashedPassword = bcrypt.hashSync(password, 10);
@@ -63,15 +70,19 @@ app.post("/register", (req, res) => {
         return;
     }
 
+    console.log("email: ", email);
+    console.log("password: ", password);
+
         const userID = generateRandomString();
         addUser(userID, email, hashedPassword);
-        res.cookie('userid', userID);
+        req.session.userid = userID;
+        req.session.email = email;
         res.redirect("/login");
 
 });
 
 app.get("/login", (req, res) => {
-    res.render("login", { email: req.cookies["email"] });
+    res.render("login", { email: req.session.email });
 });
 
 // url database
@@ -103,20 +114,20 @@ app.listen(PORT, () => {
 
 // render new URL form
 app.get("/urls/new", (req, res) => {
-    const templateVars = { email: req.cookies["email"] };
+    const templateVars = { email: req.session.email };
     res.render("urls_new", templateVars);
 });
 
 // display URL list
 app.get("/urls", (req, res) => {
-    const userID = req.cookies["userid"];
+    const userID = req.session.userid;
     if (!userID) {
      //   res.status(401).send("Login or register");
         return res.redirect("/login");
     }
     const userURLs = urlsForUser(userID);
     const templateVars = { 
-        email: req.cookies["email"],
+        email: req.session.email,
         urls: userURLs 
     };
     res.render("urls_index", templateVars);
@@ -130,7 +141,7 @@ app.get("/urls/:id", (req, res) => {
     const templateVars = {
         id: id,
         longURL: longURL,
-        email: req.cookies["email"]
+        email: req.session.email
         };
     res.render("urls_show", templateVars);
 });
@@ -155,7 +166,7 @@ app.post("/urls", (req, res) => {
         res.status(400).send("URL cannot be empty");
         return;
     }
-    urlDatabase[shortURL] = { longURL: longURL, userID: req.cookies["userid"] };
+    urlDatabase[shortURL] = { longURL: longURL, userID: req.session.userid };
     res.redirect(`/urls`);
 });
 
@@ -172,7 +183,7 @@ app.get("/u/:id", (req, res) => {
 
 // delete URL from database
 app.post("/urls/:id/delete", (req, res) => {
-    const userID = req.cookies["userid"];
+    const userID = req.session.userid;
     const urlID = req.params.id;
     const userURLs = urlsForUser(userID);
     if (!userURLs[urlID]) {
@@ -191,7 +202,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // update URL in database
 app.post("/urls/:id", (req, res) => {
-    const userID = req.cookies["userid"];
+    const userID = req.session.userid;
     const urlID = req.params.id;
     const userURLs = urlsForUser(userID);
     

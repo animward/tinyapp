@@ -19,16 +19,20 @@ const users = {
 };
 
 // add user now with hashed password
-const addUser = (id, email, password) => {
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    users[id] = { id, email, password: hashedPassword};
+const addUser = (id, email, hashedPassword) => {
+    users[id] = { 
+        id: id,
+        email: email,
+        password: hashedPassword
+    };
 };
 
 // find user by email
 const findUserByEmail = (email) => {
-    for (let userId in users) {
-        if (users[userId].email === email) {
-            return users[userId];
+    for (const userId in users) {
+    const user = users[userId];
+        if (user.email === email) {
+            return user;
         }
     }
     return null;
