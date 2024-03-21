@@ -64,7 +64,7 @@ app.post("/register", (req, res) => {
     }
 
         const userID = generateRandomString();
-        addUser(userID, email, password);
+        addUser(userID, email, hashedPassword);
         res.cookie('userid', userID);
         res.redirect("/login");
 
