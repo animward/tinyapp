@@ -12,8 +12,9 @@ app.use(cookieSession({
 const bcrypt = require('bcryptjs');
 
 const { generateRandomString } = require('./randomString');
+const findUserByEmail = require('./helpers');
 
-const {addUser, findUserByEmail } = require('./users');
+const { users, addUser } = require('./users');
 const e = require("express");
 
 app.set("view engine", "ejs");
@@ -25,7 +26,7 @@ app.post("/login", (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const user = findUserByEmail(email);
+    const user = findUserByEmail(email, users);
     if (!user) {
         res.status(403).send("Invalid username or password");
         return;
@@ -45,7 +46,8 @@ app.post("/login", (req, res) => {
 
 // logout
 app.post("/logout", (req, res) => {
-    req.session = null;
+    req.session.userid = null;
+    req.session.email = null;
     res.redirect("/login");
 });
 
@@ -65,7 +67,7 @@ app.post("/register", (req, res) => {
     
     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    if (findUserByEmail(email)) {
+    if (findUserByEmail(email, users)) {
         res.status(400).send("User already exists");
         return;
     }
@@ -74,7 +76,7 @@ app.post("/register", (req, res) => {
         addUser(userID, email, hashedPassword);
         req.session.userid = userID;
         req.session.email = email;
-        res.redirect("/login");
+        res.redirect("/urls");
 
 });
 

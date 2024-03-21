@@ -1,6 +1,5 @@
 // users.js
 
-const express_server = require('./express_server');
 const bcrypt = require('bcryptjs');
 
 // user database
@@ -27,15 +26,5 @@ const addUser = (id, email, hashedPassword) => {
     };
 };
 
-// find user by email
-const findUserByEmail = (email) => {
-    for (const userId in users) {
-    const user = users[userId];
-        if (user.email === email) {
-            return user;
-        }
-    }
-    return null;
-};
 
-module.exports = { users, addUser, findUserByEmail };
+module.exports = { users, addUser };
