@@ -1,4 +1,4 @@
-// _header.ejs
+
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
@@ -7,9 +7,15 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
+      <div class="navbar-nav" style 
+      ="margin: 0px 40px 0px auto;
+      ">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <a class="nav-item nav-link" href="/urls/new" style ="
+        display: block;
+        text-align: center;
+        margin: 0px 700px 0px auto;
+        ">Create New URL</a>
         <% if (!email) { %>
           <a class="nav-item nav-link" href="/login">Login</a>
           <a class="nav-item nav-link" href="/register">Register</a>

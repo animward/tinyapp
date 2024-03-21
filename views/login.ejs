@@ -1,4 +1,4 @@
-// views/login.ejs
+
 <!DOCTYPE html>
 <html <head>
 <%- include('partials/_header', { email: email }) %>
@@ -11,18 +11,31 @@
     </head>
 
     <body>
-        <main style="margin: 1em;">
-            <h2>Login</h2>
+        <main style="margin: 1em; text-align: center;">
+            <h2 style="
+            display: block;
+            text-align: center;
+            ">Login</h2>
             <form method="POST" action="/login">
-                <div>
+                <div style="
+                    display: block;
+                    text-align: center;
+                    margin-top: 15px;
+                    ">
                     <label for="email">Email:</label>
                     <input type="email" name="email" required>
                 </div>
-                <div>
+                <div style="
+                display: block;
+                text-align: center;
+                margin-top: 15px;
+                margin-right: 24px;
+                ">
                     <label for="password">Password:</label>
                     <input type="password" name="password" required>
                 </div>
-                <button type="submit">Login</button>
+                <button type="submit" style="
+                margin-top: 40px;">Login</button>
             </form>
         </main>
     </body>

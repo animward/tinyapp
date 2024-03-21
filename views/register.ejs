@@ -1,4 +1,4 @@
-// views/register.ejs
+
 <!DOCTYPE html>
 <html>
 
@@ -14,18 +14,26 @@
 </head>
 
 <body>
-    <main style="margin: 1em;">
-        <h2>Register</h2>
+    <main style="margin: 1em;
+    text-align: center;">
+        <h2 >Register</h2>
         <form method="POST" action="/register">
-            <div>
+            <div style="
+            display: block;
+            margin-top: 15px;
+            ;">
                 <label for="email">Email:</label>
                 <input type="email" name="email" required>
             </div>
-            <div>
+            <div style="
+            margin-top: 15px;
+            margin-right: 24px;">
                 <label for="password">Password:</label>
                 <input type="password" name="password" required>
             </div>
-            <button type="submit">Register</button>
+            <button type="submit" style="
+            margin-top: 40px;
+            ">Register</button>
 
         </form>
 
