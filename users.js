@@ -1,4 +1,4 @@
-// store user data
+// users.js
 const users = {
     userRandomID: {
         id: "userRandomID",

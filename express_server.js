@@ -31,13 +31,14 @@ app.post("/login", (req, res) => {
 
 // logout
 app.post("/logout", (req, res) => {
-    res.clearCookie('username');
+    res.clearCookie('email');
+    res.clearCookie('userid');
     res.redirect("/urls");
 });
 
 // register
 app.get("/register", (req, res) => {
-    res.render("register");
+    res.render("register", { email: req.cookies["email"] });
 });
 
 app.post("/register", (req, res) => {
@@ -51,18 +52,29 @@ app.post("/register", (req, res) => {
         const userID = generateRandomString();
         addUser(userID, email, password);
         res.cookie('userid', userID);
-        res.redirect("/urls");
+        res.redirect("/login");
     }
 });
 
 app.get("/login", (req, res) => {
-    res.render("login");
+    res.render("login", { email: req.cookies["email"] });
 });
 
 // url database
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "user1" },
+  "9sm5xK": { longURL: "http://www.google.com", userID: "user2" }
+};
+
+// filter URL database by user
+const urlsForUser = (id) => {
+    const userURLs = {};
+    for (const shortURL in urlDatabase) {
+        if (urlDatabase[shortURL].userID === id) {
+            userURLs[shortURL] = urlDatabase[shortURL];
+        }
+    }
+    return userURLs;
 };
 
 // root test
@@ -77,15 +89,21 @@ app.listen(PORT, () => {
 
 // render new URL form
 app.get("/urls/new", (req, res) => {
-    const templateVars = { username: req.cookies["username"] };
+    const templateVars = { email: req.cookies["email"] };
     res.render("urls_new", templateVars);
 });
 
 // display URL list
 app.get("/urls", (req, res) => {
+    const userID = req.cookies["userid"];
+    if (!userID) {
+        res.status(401).send("Login or register");
+        return;
+    }
+    const userURLs = urlsForUser(userID);
     const templateVars = { 
-        username: req.cookies["username"],
-        urls: urlDatabase 
+        email: req.cookies["email"],
+        urls: userURLs 
     };
     res.render("urls_index", templateVars);
   });
@@ -97,7 +115,7 @@ app.get("/urls/:id", (req, res) => {
     const templateVars = {
         id: id,
         longURL: longURL,
-        username: req.cookies["username"]
+        email: req.cookies["email"]
         };
     res.render("urls_show", templateVars);
 });
@@ -115,8 +133,14 @@ app.get("/hello", (req, res) => {
 // add new URL to database
 app.post("/urls", (req, res) => {
     const shortURL = generateRandomString();
+
     const longURL = req.body.longURL;
-    urlDatabase[shortURL] = longURL;
+
+    if (!longURL) {
+        res.status(400).send("URL cannot be empty");
+        return;
+    }
+    urlDatabase[shortURL] = { longURL: longURL, userID: req.cookies["userid"] };
     res.redirect(`/urls`);
 });
 
@@ -133,7 +157,13 @@ app.get("/u/:id", (req, res) => {
 
 // delete URL from database
 app.post("/urls/:id/delete", (req, res) => {
+    const userID = req.cookies["userid"];
     const urlID = req.params.id;
+    const userURLs = urlsForUser(userID);
+    if (!userURLs[urlID]) {
+        res.status(403).send("You do not have permission to delete this URL.");
+        return;
+    }
     const longURL = urlDatabase[urlID];
     if (longURL && longURL !== "") {
         delete urlDatabase[urlID];
@@ -146,21 +176,22 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // update URL in database
 app.post("/urls/:id", (req, res) => {
+    const userID = req.cookies["userid"];
     const urlID = req.params.id;
-    const newURL = req.body.newLongURL;
-    if (newURL === "") {
-        if (urlDatabase[urlID]) {
-            res.redirect("/urls");
-        } else {    
-            res.status(404).send("URL not found");
-        }   
-    } else {
-        if (urlDatabase[urlID]) {
-    urlDatabase[urlID] = newURL;
-    res.redirect("/urls");
-    } else {
-    res.status(404).send("URL not found");
-    }
-}
+    const userURLs = urlsForUser(userID);
     
+    if (!userURLs[urlID]) {
+        res.status(403).send("You do not have permission to edit this URL.");
+        return;
+    }
+
+    const newURL = req.body.newLongURL;
+    
+    if (!newURL) {
+        res.status(400).send("URL cannot be empty");
+        return;
+    }
+
+    urlDatabase[urlID].longURL = newURL;
+    res.redirect("/urls");
 });
