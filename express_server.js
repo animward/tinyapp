@@ -21,13 +21,19 @@ app.post("/login", (req, res) => {
     const password = req.body.password;
 
     const user = findUserByEmail(email);
-    if (!user || !bcrypt.compareSync(password, user.password)) {
+    if (!user) {
         res.status(403).send("Invalid username or password");
         return;
-    } else {
+    }
+    if (!bcrypt.compareSync(password, user.password)) {
+        res.status(403).send("Invalid username or password");
+        return;
+    }
+
+    res.cookie('userid', user.id);
     res.cookie('email', email);
     res.redirect("/urls");
-    }
+
 });
 
 // logout
@@ -47,14 +53,21 @@ app.post("/register", (req, res) => {
     const password = req.body.password;
     if (!email || !password) {
         res.status(400).send("Username or password cannot be empty");
-    } else if (findUserByEmail(email)) {
+        return
+    }
+    
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    if (findUserByEmail(email)) {
         res.status(400).send("User already exists");
-    } else {
+        return;
+    }
+
         const userID = generateRandomString();
         addUser(userID, email, password);
         res.cookie('userid', userID);
         res.redirect("/login");
-    }
+
 });
 
 app.get("/login", (req, res) => {
